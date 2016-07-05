@@ -11,7 +11,7 @@ module Lita
       route(/^locate lintott/, :lintott, command: true, help: {"locate lintott" => "Finds lintott"})
 
       def lintott(response)
-        json    = HTTParty.get(URL)
+        json    = HTTParty.get(url)
         checkin = json["response"]["checkins"]["items"][0]
         place   = checkin["venue"]["name"]
         time    = Time.at(checkin["createdAt"])
