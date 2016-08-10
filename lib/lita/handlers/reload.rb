@@ -12,6 +12,7 @@ module Lita
         response.reply(`git checkout Gemfile.lock`)
         response.reply(`git pull`)
         response.reply(`bundle install`)
+        response.reply(`bundle update lita-zooniverse`)
         response.reply(`bundle update lita-bucket`)
         response.reply("Stopping myself now, hope upstart brings me back up!")
         Kernel.exit
