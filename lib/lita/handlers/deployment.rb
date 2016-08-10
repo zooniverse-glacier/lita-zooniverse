@@ -10,7 +10,8 @@ module Lita
         "panoptes" => {
           build: "Build Panoptes Production AMI",
           migrate: "Migrate Production Panoptes Database",
-          deploy: "Deploy latest Panoptes Production build"
+          deploy: "Deploy latest Panoptes Production build",
+          deploy_api_only: "Deploy latest Panoptes Production API only build"
         },
         "nero" => {
           deploy: "Update Nero production"
@@ -32,7 +33,8 @@ module Lita
       route(/^panoptes (status|version)/, :status, command: true, help: {"panoptes status" => "Returns the number of commits not deployed to production."})
       route(/^(panoptes) build/, :build, command: true, help: {"panoptes build" => "Triggers a build of a new AMI of *PRODUCTION* in Jenkins."})
       route(/^(panoptes) migrate/, :migrate, command: true, help: {"panoptes migrate" => "Runs database migrations for Panoptes *PRODUCTION* in Jenkins."})
-      route(/^(panoptes) deploy/, :deploy, command: true, help: {"panoptes deploy" => "Triggers a deployment of *PRODUCTION* in Jenkins."})
+      route(/^(panoptes) deploy$/, :deploy, command: true, help: {"panoptes deploy" => "Triggers a deployment of *PRODUCTION* in Jenkins."})
+      route(/^(panoptes) deploy api only$/, :deploy_api_only, command: true, help: {"panoptes deploy api only" => "Triggers a deployment of *PRODUCTION* api nodes only (no backgroud dump workers) in Jenkins."})
       route(/^(panoptes) lock\s*(.*)/, :lock, command: true, help: {"panoptes lock REASON" => "Stops builds and deployments"})
       route(/^(panoptes) unlock/, :unlock, command: true, help: {"panoptes unlock" => "Lifts deployment restrictions"})
       route(/^(nero) deploy/, :deploy, command: true, help: {"nero deploy" => "Deploys https://github.com/zooniverse/nero"})
@@ -52,22 +54,27 @@ module Lita
         end
       end
 
-      def build(response)
+      def run_deployment_task(response, job)
         app, jobs = get_jobs(response)
         ensure_no_lock(app, response) or return
-        build_jenkins_job(response, jobs[:build])
+        jenkins_job_name = jobs[job]
+        build_jenkins_job(response, jenkins_job_name)
+      end
+
+      def build(response)
+        run_deployment_task(response, :build)
       end
 
       def migrate(response)
-        app, jobs = get_jobs(response)
-        ensure_no_lock(app, response) or return
-        build_jenkins_job(response, jobs[:migrate])
+        run_deployment_task(response, :migrate)
       end
 
       def deploy(response)
-        app, jobs = get_jobs(response)
-        ensure_no_lock(app, response) or return
-        build_jenkins_job(response, jobs[:deploy])
+        run_deployment_task(response, :deploy)
+      end
+
+      def deploy_api_only(response)
+        run_deployment_task(response, :deploy_api_only)
       end
 
       def lock(response)
