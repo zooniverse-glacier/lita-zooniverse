@@ -9,14 +9,14 @@ module Lita
       route(/^panoptes tag production/, :tag_production, command: true, help: {"tag production" => "Applies the production tag to the current master commit"})
 
       def tag_production(response)
-        client.create_ref('zooniverse/panoptes', "tags/production", master.object.sha)
+        client.create_ref('zooniverse/panoptes', "tags/production", master_sha)
         response.reply("Production tag applied to current master commit.")
       rescue StandardError => e
         response.reply("Not sure. Try shouting really hard. (#{e.message})")
       end
 
       def master
-        @master ||= Octokit.ref('zooniverse/panoptes', 'heads/master').object.sha
+        @master ||= Octokit.ref('zooniverse/panoptes', 'heads/master')
       end
 
       def master_sha
