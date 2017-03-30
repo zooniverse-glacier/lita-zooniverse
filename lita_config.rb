@@ -7,6 +7,8 @@ Lita.configure do |config|
   config.handlers.deployment.jenkins_username = ""
   config.handlers.deployment.jenkins_password = ""
   config.handlers.lintott.api_key = ""
+  config.handlers.git_login = ""
+  config.handlers.git_password = ""
 end
 
 require_relative 'lib/lita-zooniverse'

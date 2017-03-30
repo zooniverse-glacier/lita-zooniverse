@@ -47,7 +47,7 @@ module Lita
         comparison = Octokit.compare("zooniverse/panoptes", deployed_version, "production")
 
         if comparison.commits.empty?
-          response.reply("Production tag is the currently deployed version.")
+          response.reply("Production tag is currently deployed.")
         else
           word = comparison.commits.size > 1 ? "commits" : "commit"
           response.reply("#{comparison.commits.size} undeployed #{word}. #{comparison.permalink_url} :shipit:")

@@ -9,6 +9,7 @@ require "lita/handlers/deployment"
 require "lita/handlers/lintott"
 require "lita/handlers/aws_handler"
 require "lita/handlers/reload"
+require "lita/handlers/git"
 
 Lita::Handlers::Projects.template_root File.expand_path(
   File.join("..", "..", "templates"),
