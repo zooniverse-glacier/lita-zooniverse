@@ -46,11 +46,9 @@ module Lita
         deployed_version = HTTParty.get("https://panoptes.zooniverse.org/commit_id.txt").strip
 
         git_responses = {}
-        # compare deployed server commit and production (normally the same)
         %w(HEAD production).each do |tag|
           comparison = Octokit.compare("zooniverse/panoptes", deployed_version, tag)
           if comparison.commits.empty?
-            # does this make sense in the loop
             git_responses[tag] = "is the currently deployed version."
           else
             word = comparison.commits.size > 1 ? "commits" : "commit"
