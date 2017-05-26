@@ -44,14 +44,26 @@ module Lita
 
       def status(response)
         deployed_version = HTTParty.get("https://panoptes.zooniverse.org/commit_id.txt").strip
-        comparison = Octokit.compare("zooniverse/panoptes", deployed_version, "production")
 
-        if comparison.commits.empty?
-          response.reply("Production tag is the currently deployed version.")
-        else
-          word = comparison.commits.size > 1 ? "commits" : "commit"
-          response.reply("#{comparison.commits.size} undeployed #{word}. #{comparison.permalink_url} :shipit:")
+        git_responses = {}
+        # compare deployed server commit and production (normally the same)
+        %w(HEAD production).each do |tag|
+          comparison = Octokit.compare("zooniverse/panoptes", deployed_version, tag)
+          if comparison.commits.empty?
+            # does this make sense in the loop
+            git_responses[tag] = "is the currently deployed version."
+          else
+            word = comparison.commits.size > 1 ? "commits" : "commit"
+            git_responses[tag] = "#{comparison.commits.size} undeployed #{word}. #{comparison.permalink_url}"
+            git_responses[tag] << " :shipit:" if tag == "production"
+          end
         end
+
+        formatted_response = git_responses.map do |tag, comment|
+          "#{tag.upcase} : #{comment}"
+        end.join("\n")
+
+        response.reply(formatted_response)
       end
 
       def run_deployment_task(response, job)
