@@ -11,7 +11,8 @@ module Lita
           build: "Build Panoptes Production AMI",
           migrate: "Migrate Production Panoptes Database",
           deploy: "Deploy latest Panoptes Production build",
-          deploy_api_only: "Deploy latest Panoptes Production API only build"
+          deploy_api_only: "Deploy latest Panoptes Production API only build",
+          update_tag: "Update panoptes production tag"
         },
         "nero" => {
           deploy: "Update Nero production"
@@ -31,6 +32,7 @@ module Lita
       route(/^(status|build|migrate|deploy|lock|unlock)/, :reversed, command: true)
 
       route(/^panoptes (status|version)/, :status, command: true, help: {"panoptes status" => "Returns the number of commits not deployed to production."})
+      route(/^(panoptes) update tag/, :update_tag, command: true, help: {"panoptes update tag" => "Triggers a GitHub production tag update via Jenkins."})
       route(/^(panoptes) build/, :build, command: true, help: {"panoptes build" => "Triggers a build of a new AMI of *PRODUCTION* in Jenkins."})
       route(/^(panoptes) migrate/, :migrate, command: true, help: {"panoptes migrate" => "Runs database migrations for Panoptes *PRODUCTION* in Jenkins."})
       route(/^(panoptes) deploy$/, :deploy, command: true, help: {"panoptes deploy" => "Triggers a deployment of *PRODUCTION* in Jenkins."})
@@ -69,6 +71,10 @@ module Lita
         ensure_no_lock(app, response) or return
         jenkins_job_name = jobs[job]
         build_jenkins_job(response, jenkins_job_name)
+      end
+
+      def update_tag(response)
+        run_deployment_task(response, :update_tag)
       end
 
       def build(response)
